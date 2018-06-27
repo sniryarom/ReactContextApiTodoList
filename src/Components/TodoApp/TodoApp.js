@@ -2,27 +2,52 @@ import React from 'react';
 import TodoList from '../TodoList/TodoList';
 import './TodoApp.css'; 
 
+/* API realted stuff */
 const API_URL = 'http://localhost:5000/api/todo';
 
 function status(response) {
   if (response.status >= 200 && response.status < 300) {
-    return Promise.resolve(response)
+    return Promise.resolve(response);
   } else {
-    return Promise.reject(new Error(response.statusText))
+    return Promise.reject(new Error(response.statusText));
   }
 }
 
 function json(response) {
-  return response.json()
+  return response.json();
 }
 
+/* Context API stuff */
+const MyContext = React.createContext();
+
+class MyProvider extends React.Component {
+  state = {
+    text: '',
+    todoList: newArray,
+    filteredList: newArray, 
+    isLoaded: false,
+    filterList: () =>  
+  }
+  render() {
+    return (
+      <MyContext.myProvider value= {{
+        state: this.state
+      }}>
+        {this.props.children}
+      </MyContext.myProvider>
+    )
+  }
+}
+
+
+/* TotoApp */
  class TodoApp extends React.Component {
   constructor(props){
     console.debug("constructor started");
      super(props);
      var newArray = [];
 
-     this.state = {text: '', todoList: newArray, filteredList: newArray, isLoaded: false}
+     //this.state = {text: '', todoList: newArray, filteredList: newArray, isLoaded: false}
      this.getInitialData = this.getInitialData.bind(this)
      this.update = this.update.bind(this)
      this.addItem = this.addItem.bind(this)
@@ -184,14 +209,17 @@ function json(response) {
   render(){
      console.log('App render');
      return (
-       <div>
-        <input type="text" className='inputBtnStyle' value={this.state.text} onChange={this.update} onKeyPress={this.handleKeyPress} />
-        <button onClick={this.addItem} >ADD</button>
-          <hr/>
-          <div>
-            <TodoList list={this.state.filteredList} checkItemFunc={this.checkItem} removeItemFunc={this.removeItem} filterFunc={this.filterList} />
-          </div>
-       </div>
+       <MyProvider>
+        <div>
+          <input type="text" className='inputBtnStyle' value={this.state.text} onChange={this.update} onKeyPress={this.handleKeyPress} />
+          <button onClick={this.addItem} >ADD</button>
+            <hr/>
+            <div>
+              {/* <TodoList list={this.state.filteredList} checkItemFunc={this.checkItem} removeItemFunc={this.removeItem} filterFunc={this.filterList} /> */}
+              <TodoList/>
+            </div>
+        </div>
+       </MyProvider>
      )
    }
  } 
