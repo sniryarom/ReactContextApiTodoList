@@ -1,11 +1,14 @@
-.spanTextStrikeThrough{
-    text-decoration: line-through;
-    margin-left: 10px;
+
+  .spanText {
+    margin: 3px;
+    margin-left: 10px; 
+    display: inline-block;
+    width: 100px;
+    word-wrap: break-word;    
   }
-  
-  .spanTextRegular {
-    text-decoration: none;
-    margin-left: 10px;
+
+  .strikeThrough{
+    text-decoration: line-through;
   }
 
   .deleteBtn {

@@ -1,59 +1,64 @@
 import React from 'react';
 import TodoList from '../TodoList/TodoList';
 import './TodoApp.css'; 
+import {TodoContext, todoContextStates} from './TodoContext';
 
-/* API realted stuff */
 const API_URL = 'http://localhost:5000/api/todo';
 
 function status(response) {
   if (response.status >= 200 && response.status < 300) {
-    return Promise.resolve(response);
+    return Promise.resolve(response)
   } else {
-    return Promise.reject(new Error(response.statusText));
+    return Promise.reject(new Error(response.statusText))
   }
 }
 
 function json(response) {
-  return response.json();
+  return response.json()
 }
 
-/* Context API stuff */
-const MyContext = React.createContext();
-
-class MyProvider extends React.Component {
-  state = {
-    text: '',
-    todoList: newArray,
-    filteredList: newArray, 
-    isLoaded: false,
-    filterList: () =>  
-  }
-  render() {
-    return (
-      <MyContext.myProvider value= {{
-        state: this.state
-      }}>
-        {this.props.children}
-      </MyContext.myProvider>
-    )
-  }
-}
-
-
-/* TotoApp */
  class TodoApp extends React.Component {
   constructor(props){
     console.debug("constructor started");
      super(props);
-     var newArray = [];
 
-     //this.state = {text: '', todoList: newArray, filteredList: newArray, isLoaded: false}
+     this.filterList = (filter) => {
+      console.log('filter applied with filter: ' + filter)
+      var filteredArray = this.state.todoList;
+      switch(filter) {
+        case "Closed":
+          filteredArray = this.state.todoList.filter((item) => item.isComplete === true );
+          break;
+        case "Open":
+          filteredArray = this.state.todoList.filter((item) => item.isComplete === false );
+          break;
+        case "All":
+        default:
+          filteredArray = this.state.todoList;
+            break;
+  
+      }
+      this.setState(state => ({
+        filteredList: filteredArray
+      }));
+    };
+
+     this.state = {
+        text: '',
+        placeHolderText: 'Add an item here',
+        //init local state with Context states
+        todoList: todoContextStates.todoList, 
+        filteredList: todoContextStates.todoListFiltered,
+        filterList: this.filterList
+     };
+     
      this.getInitialData = this.getInitialData.bind(this)
      this.update = this.update.bind(this)
      this.addItem = this.addItem.bind(this)
      this.removeItem = this.removeItem.bind(this)
      this.checkItem = this.checkItem.bind(this)
-     this.filterList = this.filterList.bind(this)
+     //this.filterList = this.filterList.bind(this)
+     console.debug("initial text: " + this.state.text);
      console.debug("constructor ended");
    }
 
@@ -87,12 +92,12 @@ class MyProvider extends React.Component {
    addItem(){
     if (this.state.text !== '') {
       //update the UI
-      let newArray = this.state.todoList.slice();
+      //let newArray = this.state.todoList.slice();
       let newTodoItem = {text: this.state.text, isComplete: false};  
-      newArray.push(newTodoItem);   
-      this.setState({todoList: newArray, text: ''});
+      //newArray.push(newTodoItem);   
+      //this.setState({todoList: newArray, text: ''});
       //then update the server and then the client
-      newArray = [];
+      let newArray = [];
       fetch(API_URL, {
         method: 'post',
         headers: {
@@ -109,8 +114,8 @@ class MyProvider extends React.Component {
             newArray.push(item)
         ))
         console.debug('New array of todo: ', newArray);
-        this.setState({todoList: newArray, filteredList: newArray});
         console.debug('New item added: ' + this.state.text + '. Num of items: ' + newArray.length)
+        this.setState({text: '', todoList: newArray, filteredList: newArray});
       }).catch(function(error) {
         console.log('Request failed', error);
       });
@@ -186,40 +191,20 @@ class MyProvider extends React.Component {
   //   array[index].isComplete = (e.target.checked) ? true : false;
   //   this.setState({todoList: array})
   // }
-
-  filterList (filter){
-    console.log('filter applied with filter: ' + filter)
-    var filteredArray = this.state.todoList;
-    switch(filter) {
-      case "Closed":
-        filteredArray = this.state.todoList.filter((item) => item.isComplete === true );
-        break;
-      case "Open":
-        filteredArray = this.state.todoList.filter((item) => item.isComplete === false );
-        break;
-      case "All":
-      default:
-        filteredArray = this.state.todoList;
-          break;
-
-    }
-    this.setState({filteredList: filteredArray});
-  }
   
   render(){
      console.log('App render');
      return (
-       <MyProvider>
-        <div>
-          <input type="text" className='inputBtnStyle' value={this.state.text} onChange={this.update} onKeyPress={this.handleKeyPress} />
-          <button onClick={this.addItem} >ADD</button>
-            <hr/>
-            <div>
-              {/* <TodoList list={this.state.filteredList} checkItemFunc={this.checkItem} removeItemFunc={this.removeItem} filterFunc={this.filterList} /> */}
-              <TodoList/>
-            </div>
-        </div>
-       </MyProvider>
+      <TodoContext.Provider value={this.state}>
+       <div>
+        <input type="text" className='inputBtnStyle' value={this.state.text} placeholder={this.state.placeHolderText} onChange={this.update} onKeyPress={this.handleKeyPress} />
+        <button onClick={this.addItem} >ADD</button>
+          <hr/>
+          <div>
+            <TodoList list={this.state.filteredList} checkItemFunc={this.checkItem} removeItemFunc={this.removeItem} />
+          </div>
+       </div>
+      </TodoContext.Provider>
      )
    }
  } 

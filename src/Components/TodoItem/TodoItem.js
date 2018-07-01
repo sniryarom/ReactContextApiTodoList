@@ -21,7 +21,7 @@ class TodoItem extends React.Component {
     render(){
      console.log('TodoItem will render. Text: ', this.props.item.text, ', Completed: ', this.props.item.isComplete);
      const itemChecked = this.props.item.isComplete ?  true : false;
-     const itemClassName = this.props.item.isComplete ?  'spanTextStrikeThrough' : 'spanTextRegular';
+     const itemClassName = this.props.item.isComplete ?  'spanText strikeThrough' : 'spanText';
       return (
         <li>
              <input type="checkbox" checked={itemChecked} onClick={this.handleCheckItem} />
